@@ -76,27 +76,8 @@ cp -r frontend/dist/* public/
 bundle exec rails server
 
 # 5. ブラウザでアクセス
-# http://localhost:3000
+# http://localhost:4000
 ```
-
-## 🚨 トラブルシューティング
-
-### SSL 証明書エラーが発生する場合
-
-```
-ERROR: Root certificate is not trusted (netskope.com)
-```
-
-**対処法:**
-
-1. 企業 VPN を一時的に切断して Docker ビルド
-2. または、ローカル環境で直接実行
-3. または、IT 部門に証明書ファイルを依頼
-
-### yarn install がローカルで必要か？
-
-- **Docker 環境**: 不要（コンテナ内で自動実行）
-- **ローカル環境**: 必要（手動で実行）
 
 ## 📁 プロジェクト構造
 
