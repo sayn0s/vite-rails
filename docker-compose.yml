@@ -1,0 +1,10 @@
+services:
+  app:
+    build: .
+    ports:
+      - "4000:3001"
+    environment:
+      - NODE_ENV=production
+      - RAILS_ENV=development
+    tty: true
+    stdin_open: true
