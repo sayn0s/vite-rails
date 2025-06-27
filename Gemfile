@@ -1,5 +1,5 @@
 source 'https://rubygems.org'
 gem 'rails', '~> 7.0'
 gem 'puma', '~> 6.0'
-gem 'listen', '~> 3.3'
-gem 'sqlite3', '~> 1.4' 
+gem 'sqlite3', '~> 1.4'
+gem 'vite_rails'
