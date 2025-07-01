@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "cd frontend && vite",
-    "build": "cd frontend && vite build"
+    "dev": "cd app/frontend && vite",
+    "build": "cd app/frontend && vite build"
   },
   "dependencies": {
     "vue": "^2.7.16"
