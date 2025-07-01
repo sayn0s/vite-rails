@@ -44,128 +44,111 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
 
-export default {
-  name: "App",
-  setup() {
-    // 🔥 リアクティブなデータ
-    const todos = ref([])
-    const newTodo = reactive({
-      title: "",
-      completed: false,
-    })
-    const loading = ref(false)
+// 🔥 リアクティブなデータ
+const todos = ref([])
+const newTodo = reactive({
+  title: "",
+  completed: false,
+})
+const loading = ref(false)
 
-    // 🧮 計算プロパティ
-    const completedCount = computed(() => 
-      todos.value.filter(todo => todo.completed).length
-    )
-    const pendingCount = computed(() => 
-      todos.value.filter(todo => !todo.completed).length
-    )
+// 🧮 計算プロパティ
+const completedCount = computed(() => 
+  todos.value.filter(todo => todo.completed).length
+)
+const pendingCount = computed(() => 
+  todos.value.filter(todo => !todo.completed).length
+)
 
-    // ⚡ ヘルパー関数
-    const apiUrl = (path = "") => `/api/v1/todos${path}`
+// ⚡ ヘルパー関数
+const apiUrl = (path = "") => `/api/v1/todos${path}`
 
-    // 📡 API メソッド
-    const fetchTodos = async () => {
-      try {
-        loading.value = true
-        const response = await fetch(apiUrl())
-        if (!response.ok) throw new Error("取得に失敗しました")
-        todos.value = await response.json()
-      } catch (error) {
-        console.error("TODO取得エラー:", error)
-        alert("TODOの取得に失敗しました")
-      } finally {
-        loading.value = false
-      }
-    }
-
-    const createTodo = async () => {
-      if (!newTodo.title.trim()) return
-
-      try {
-        const response = await fetch(apiUrl(), {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ todo: newTodo }),
-        })
-
-        if (!response.ok) throw new Error("作成に失敗しました")
-
-        const createdTodo = await response.json()
-        todos.value.push(createdTodo)
-        newTodo.title = "" // フォームをクリア
-      } catch (error) {
-        console.error("TODO作成エラー:", error)
-        alert("TODOの作成に失敗しました")
-      }
-    }
-
-    const toggleTodo = async (todo) => {
-      try {
-        const updatedTodo = { ...todo, completed: !todo.completed }
-        const response = await fetch(apiUrl(`/${todo.id}`), {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ todo: updatedTodo }),
-        })
-
-        if (!response.ok) throw new Error("更新に失敗しました")
-
-        const result = await response.json()
-        const index = todos.value.findIndex((t) => t.id === todo.id)
-        if (index !== -1) {
-          todos.value[index] = result
-        }
-      } catch (error) {
-        console.error("TODO更新エラー:", error)
-        alert("TODOの更新に失敗しました")
-      }
-    }
-
-    const deleteTodo = async (id) => {
-      if (!confirm("このTODOを削除しますか？")) return
-
-      try {
-        const response = await fetch(apiUrl(`/${id}`), {
-          method: "DELETE",
-        })
-
-        if (!response.ok) throw new Error("削除に失敗しました")
-
-        todos.value = todos.value.filter((todo) => todo.id !== id)
-      } catch (error) {
-        console.error("TODO削除エラー:", error)
-        alert("TODOの削除に失敗しました")
-      }
-    }
-
-    // 🔄 ライフサイクル
-    onMounted(async () => {
-      await fetchTodos()
-    })
-
-    // 📤 テンプレートで使用するものをreturn
-    return {
-      todos,
-      newTodo,
-      loading,
-      completedCount,
-      pendingCount,
-      createTodo,
-      toggleTodo,
-      deleteTodo
-    }
+// 📡 API メソッド
+const fetchTodos = async () => {
+  try {
+    loading.value = true
+    const response = await fetch(apiUrl())
+    if (!response.ok) throw new Error("取得に失敗しました")
+    todos.value = await response.json()
+  } catch (error) {
+    console.error("TODO取得エラー:", error)
+    alert("TODOの取得に失敗しました")
+  } finally {
+    loading.value = false
   }
 }
+
+const createTodo = async () => {
+  if (!newTodo.title.trim()) return
+
+  try {
+    const response = await fetch(apiUrl(), {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ todo: newTodo }),
+    })
+
+    if (!response.ok) throw new Error("作成に失敗しました")
+
+    const createdTodo = await response.json()
+    todos.value.push(createdTodo)
+    newTodo.title = "" // フォームをクリア
+  } catch (error) {
+    console.error("TODO作成エラー:", error)
+    alert("TODOの作成に失敗しました")
+  }
+}
+
+const toggleTodo = async (todo) => {
+  try {
+    const updatedTodo = { ...todo, completed: !todo.completed }
+    const response = await fetch(apiUrl(`/${todo.id}`), {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ todo: updatedTodo }),
+    })
+
+    if (!response.ok) throw new Error("更新に失敗しました")
+
+    const result = await response.json()
+    const index = todos.value.findIndex((t) => t.id === todo.id)
+    if (index !== -1) {
+      todos.value[index] = result
+    }
+  } catch (error) {
+    console.error("TODO更新エラー:", error)
+    alert("TODOの更新に失敗しました")
+  }
+}
+
+const deleteTodo = async (id) => {
+  if (!confirm("このTODOを削除しますか？")) return
+
+  try {
+    const response = await fetch(apiUrl(`/${id}`), {
+      method: "DELETE",
+    })
+
+    if (!response.ok) throw new Error("削除に失敗しました")
+
+    todos.value = todos.value.filter((todo) => todo.id !== id)
+  } catch (error) {
+    console.error("TODO削除エラー:", error)
+    alert("TODOの削除に失敗しました")
+  }
+}
+
+// 🔄 ライフサイクル
+onMounted(async () => {
+  await fetchTodos()
+})
 </script>
 
 <style>
