@@ -1,5 +1,5 @@
-class FrontendController < ActionController::Base
+class FrontendController < ApplicationController
   def index
-    render file: Rails.root.join('public', 'index.html'), layout: false
+    render 'frontend/index', layout: 'application'
   end
-end 
+end

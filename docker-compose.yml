@@ -1,10 +1,24 @@
+version: "3.8"
 services:
   app:
     build: .
     ports:
-      - "4000:3001"
+      - "4000:3001" # Rails server
+      - "5173:5173" # Vite dev server (デフォルトポート)
     environment:
-      - NODE_ENV=production
+      - NODE_ENV=development
       - RAILS_ENV=development
+      - VITE_RUBY_HOST=0.0.0.0 # 重要: コンテナ内でViteをバインド
+      - VITE_RUBY_PORT=5173
+    volumes:
+      - .:/app # 開発用ボリュームマウント
+      - /app/node_modules # node_modulesはコンテナ内に保持
+      - /app/vendor/bundle # bundleもコンテナ内に保持
     tty: true
     stdin_open: true
+    command: >
+      bash -c "
+        bundle exec vite install &&
+        bundle exec vite dev &
+        bundle exec rails server -b 0.0.0.0 -p 3001
+      "
