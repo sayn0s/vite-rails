@@ -53,8 +53,8 @@ cd vite-rails
 # 2. Docker Composeで起動
 docker-compose up --build
 
-# 3. フロントエンド＆APIにアクセス
-# http://localhost:3001
+# 3. アプリケーションにアクセス
+# http://localhost:4000
 ```
 
 ### 💻 ローカル環境（企業プロキシ環境推奨）
@@ -64,19 +64,11 @@ docker-compose up --build
 bundle install
 yarn install
 
-# 2. フロントエンドをビルド
-cd frontend
-yarn build
-cd ..
-
-# 3. ビルド成果物をpublic/にコピー
-cp -r frontend/dist/* public/
-
-# 4. Rails API サーバー起動
+# 2. Rails + Vite統合環境を起動
 bundle exec rails server
 
-# 5. ブラウザでアクセス
-# http://localhost:4000
+# 3. ブラウザでアクセス
+# http://localhost:3000（ローカル）
 ```
 
 ## 📁 プロジェクト構造
@@ -98,21 +90,20 @@ vite-rails/
 │   ├── application.rb
 │   ├── routes.rb
 │   └── environments/
-├── 🎨 frontend/                  # Vue.js アプリケーション
-│   ├── main.js                   # エントリーポイント
-│   ├── App.vue                   # メインコンポーネント
-│   └── components/
-│       ├── TodoList.vue          # TODO一覧
-│       ├── TodoForm.vue          # TODO作成フォーム
-│       └── TodoItem.vue          # TODOアイテム
-│   └── dist/                     # Viteビルド成果物（本番用）
+├── 🎨 app/frontend/              # Vue.js アプリケーション（Rails統合）
+│   ├── App.vue                   # メインVue.jsコンポーネント（Composition API）
+│   ├── main.js                   # スタンドアローン開発用エントリー
+│   ├── vite.config.js            # Vite設定（public/直接出力）
+│   ├── index.html                # スタンドアローン開発用HTML
+│   └── entrypoints/
+│       └── application.js        # Rails統合エントリーポイント
 ├── 🌐 public/
-│   └── index.html                # フロントエンド配信（distからコピー）
+│   └── vite-dev/                 # Vite開発用アセット（自動生成）
 └── 💾 data/
     └── todos.json                # TODO データ（自動生成）
 ```
 
-※ `frontend/dist/` のビルド成果物は `public/` 配下にコピーされ、Rails サーバーで配信されます。
+※ Rails + Vite統合構成では、vite_railsがアセット管理を自動化します。
 
 ## 🔗 API エンドポイント
 
@@ -137,8 +128,25 @@ vite-rails/
 }
 ```
 
+## 🌟 今回の主要な改善
+
+### ✅ Vue3移行準備完了
+- **Vue2.7 Composition API**への完全移行
+- `ref`, `reactive`, `computed`, `onMounted`を使用
+- Vue3への移行準備が整った状態
+
+### ✅ Rails + Vite統合最適化
+- **vite_rails**による完全統合
+- Rails MPA + Vue.js部分統合アーキテクチャ
+- 重複構成を解消してシンプルな開発環境を実現
+
+### ✅ ドキュメント正確性向上
+- ポート番号や構成情報を実際の動作に合わせて修正
+- 開発ワークフローを明確化
+
 ## 🌟 今後の拡張予定
 
+- [ ] Vue3への最終移行
 - [ ] ユーザー認証
 - [ ] カテゴリ機能
 - [ ] 期限設定
