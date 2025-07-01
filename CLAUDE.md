@@ -10,8 +10,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 bin/rails server
 # Access at http://localhost:3000 (local) or http://localhost:4000 (Docker)
 
-# Alternative: Use foreman for parallel processes
-foreman start -f Procfile.dev
+# Alternative: Manual parallel processes
+bin/vite dev & bin/rails s
 ```
 
 ### Building and Deployment
@@ -80,7 +80,7 @@ Rails handles routing with a catch-all for non-API routes:
 2. **Standalone frontend**: `cd app/frontend && yarn dev`
    - Pure Vue.js development
    - Faster hot reload for frontend-only changes
-3. **Parallel processes**: `foreman start -f Procfile.dev`
+3. **Manual parallel**: `bin/vite dev & bin/rails s`
 
 ### File Structure Notes
 - `app/frontend/App.vue` - Main Vue.js application component (single source of truth)
