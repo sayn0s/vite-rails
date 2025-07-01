@@ -18,7 +18,6 @@ services:
     stdin_open: true
     command: >
       bash -c "
-        bundle exec vite install &&
-        bundle exec vite dev &
-        bundle exec rails server -b 0.0.0.0 -p 3001
+        bundle exec rails server -b 0.0.0.0 -p 3001 &
+        bundle exec vite dev
       "

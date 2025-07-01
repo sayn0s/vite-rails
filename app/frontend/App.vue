@@ -44,119 +44,111 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: "App",
-  data() {
-    return {
-      todos: [],
-      newTodo: {
-        title: "",
-        completed: false,
+<script setup>
+import { ref, reactive, computed, onMounted } from 'vue'
+
+// 🔥 リアクティブなデータ
+const todos = ref([])
+const newTodo = reactive({
+  title: "",
+  completed: false,
+})
+const loading = ref(false)
+
+// 🧮 計算プロパティ
+const completedCount = computed(() => 
+  todos.value.filter(todo => todo.completed).length
+)
+const pendingCount = computed(() => 
+  todos.value.filter(todo => !todo.completed).length
+)
+
+// ⚡ ヘルパー関数
+const apiUrl = (path = "") => `/api/v1/todos${path}`
+
+// 📡 API メソッド
+const fetchTodos = async () => {
+  try {
+    loading.value = true
+    const response = await fetch(apiUrl())
+    if (!response.ok) throw new Error("取得に失敗しました")
+    todos.value = await response.json()
+  } catch (error) {
+    console.error("TODO取得エラー:", error)
+    alert("TODOの取得に失敗しました")
+  } finally {
+    loading.value = false
+  }
+}
+
+const createTodo = async () => {
+  if (!newTodo.title.trim()) return
+
+  try {
+    const response = await fetch(apiUrl(), {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
       },
-      loading: false,
-    };
-  },
-  computed: {
-    completedCount() {
-      return this.todos.filter((todo) => todo.completed).length;
-    },
-    pendingCount() {
-      return this.todos.filter((todo) => !todo.completed).length;
-    },
-  },
-  async mounted() {
-    await this.fetchTodos();
-  },
-  methods: {
-    // API基本URL
-    apiUrl(path = "") {
-      return `/api/v1/todos${path}`;
-    },
+      body: JSON.stringify({ todo: newTodo }),
+    })
 
-    // TODO一覧取得
-    async fetchTodos() {
-      try {
-        this.loading = true;
-        const response = await fetch(this.apiUrl());
-        if (!response.ok) throw new Error("取得に失敗しました");
-        this.todos = await response.json();
-      } catch (error) {
-        console.error("TODO取得エラー:", error);
-        alert("TODOの取得に失敗しました");
-      } finally {
-        this.loading = false;
-      }
-    },
+    if (!response.ok) throw new Error("作成に失敗しました")
 
-    // TODO作成
-    async createTodo() {
-      if (!this.newTodo.title.trim()) return;
+    const createdTodo = await response.json()
+    todos.value.push(createdTodo)
+    newTodo.title = "" // フォームをクリア
+  } catch (error) {
+    console.error("TODO作成エラー:", error)
+    alert("TODOの作成に失敗しました")
+  }
+}
 
-      try {
-        const response = await fetch(this.apiUrl(), {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ todo: this.newTodo }),
-        });
+const toggleTodo = async (todo) => {
+  try {
+    const updatedTodo = { ...todo, completed: !todo.completed }
+    const response = await fetch(apiUrl(`/${todo.id}`), {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ todo: updatedTodo }),
+    })
 
-        if (!response.ok) throw new Error("作成に失敗しました");
+    if (!response.ok) throw new Error("更新に失敗しました")
 
-        const createdTodo = await response.json();
-        this.todos.push(createdTodo);
-        this.newTodo.title = ""; // フォームをクリア
-      } catch (error) {
-        console.error("TODO作成エラー:", error);
-        alert("TODOの作成に失敗しました");
-      }
-    },
+    const result = await response.json()
+    const index = todos.value.findIndex((t) => t.id === todo.id)
+    if (index !== -1) {
+      todos.value[index] = result
+    }
+  } catch (error) {
+    console.error("TODO更新エラー:", error)
+    alert("TODOの更新に失敗しました")
+  }
+}
 
-    // TODO完了状態切り替え
-    async toggleTodo(todo) {
-      try {
-        const updatedTodo = { ...todo, completed: !todo.completed };
-        const response = await fetch(this.apiUrl(`/${todo.id}`), {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ todo: updatedTodo }),
-        });
+const deleteTodo = async (id) => {
+  if (!confirm("このTODOを削除しますか？")) return
 
-        if (!response.ok) throw new Error("更新に失敗しました");
+  try {
+    const response = await fetch(apiUrl(`/${id}`), {
+      method: "DELETE",
+    })
 
-        const result = await response.json();
-        const index = this.todos.findIndex((t) => t.id === todo.id);
-        if (index !== -1) {
-          this.todos[index] = result;
-        }
-      } catch (error) {
-        console.error("TODO更新エラー:", error);
-        alert("TODOの更新に失敗しました");
-      }
-    },
+    if (!response.ok) throw new Error("削除に失敗しました")
 
-    // TODO削除
-    async deleteTodo(id) {
-      if (!confirm("このTODOを削除しますか？")) return;
+    todos.value = todos.value.filter((todo) => todo.id !== id)
+  } catch (error) {
+    console.error("TODO削除エラー:", error)
+    alert("TODOの削除に失敗しました")
+  }
+}
 
-      try {
-        const response = await fetch(this.apiUrl(`/${id}`), {
-          method: "DELETE",
-        });
-
-        if (!response.ok) throw new Error("削除に失敗しました");
-
-        this.todos = this.todos.filter((todo) => todo.id !== id);
-      } catch (error) {
-        console.error("TODO削除エラー:", error);
-        alert("TODOの削除に失敗しました");
-      }
-    },
-  },
-};
+// 🔄 ライフサイクル
+onMounted(async () => {
+  await fetchTodos()
+})
 </script>
 
 <style>
