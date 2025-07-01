@@ -57,12 +57,11 @@ export default defineConfig({
 
 #### 3. メインエントリポイントの設定
 
-`app/frontend/main.js`にglobal互換設定を追加：
+`app/frontend/entrypoints/application.js`にglobal互換設定を追加：
 
 ```javascript
-import { createApp } from 'vue'
-import { configureCompat } from 'vue'
-import App from './App.vue'
+import { createApp, configureCompat } from 'vue'
+import App from '../App.vue'
 
 // グローバル互換設定
 configureCompat({
@@ -109,7 +108,7 @@ configureCompat({
 })
 
 const app = createApp(App)
-app.mount('#app')
+app.mount('#vue-app')
 ```
 
 #### 4. App.vueの確認
@@ -168,14 +167,14 @@ export default defineConfig({
 
 #### 3. メインエントリポイントの清理
 
-`app/frontend/main.js`から互換設定を削除：
+`app/frontend/entrypoints/application.js`から互換設定を削除：
 
 ```javascript
 import { createApp } from 'vue'
-import App from './App.vue'
+import App from '../App.vue'
 
 const app = createApp(App)
-app.mount('#app')
+app.mount('#vue-app')
 ```
 
 ## 注意事項
